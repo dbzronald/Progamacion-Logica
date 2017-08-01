@@ -1,0 +1,76 @@
+	%=====================
+	% problem8(?Solution).
+	%=====================
+	% calculates the Solution-Path from the StartState to the EndState.
+	% The little x defines the Blank.
+	%
+	%	1 3 2		1 2 3
+	%	4 6 5	->->	4 5 6
+	%	7 x 8		7 8 x
+	%
+	% try and modify the StartState and/or EndState !
+	% Constraints:	a) only implemented for a 3*3 - matrice
+	%		b) there must be one little x in both states
+	%
+	% I have a i-486 100Mhz system,
+	% it required 3 minutes of calculation :-( !
+	%	?- problem8(Solution).
+	%	Solution = [7, 4, 6, 3, 2, 5, 3, 6, 1, 2, 5, 3, 6, 5, 2, 1, 4, 7, 8]
+
+problem8(Solution) :-
+	StartingState = [[1,3,2],[4,6,5],[7,x,8]],
+	EndingState = [[1,2,3],[4,5,6],[7,8,x]],
+	solution(StartingState,EndingState,Solution).
+
+
+
+	% ============================
+	% move(+StateA,+StateB,?Move).
+	% ============================
+	% these are the allowed moves.
+
+
+% first row - horizontal moves
+move([[x,A,B],[C,D,E],[F,G,H]],[[A,x,B],[C,D,E],[F,G,H]],A).
+move([[A,x,B],[C,D,E],[F,G,H]],[[A,B,x],[C,D,E],[F,G,H]],B).
+
+% second row - horizontal moves
+move([[A,B,C],[x,D,E],[F,G,H]],[[A,B,C],[D,x,E],[F,G,H]],D).
+move([[A,B,C],[D,x,E],[F,G,H]],[[A,B,C],[D,E,x],[F,G,H]],E).
+
+% last row - horizontal moves
+move([[A,B,C],[D,E,F],[x,G,H]],[[A,B,C],[D,E,F],[G,x,H]],G).
+move([[A,B,C],[D,E,F],[G,x,H]],[[A,B,C],[D,E,F],[G,H,x]],H).
+
+% first row vertical moves
+move([[x,A,B],[C,D,E],[F,G,H]],[[C,A,B],[x,D,E],[F,G,H]],C).
+move([[A,x,B],[C,D,E],[F,G,H]],[[A,D,B],[C,x,E],[F,G,H]],D).
+move([[A,B,x],[C,D,E],[F,G,H]],[[A,B,E],[C,D,x],[F,G,H]],E).
+
+% socond row vertical moves
+move([[A,B,C],[x,D,E],[F,G,H]],[[A,B,C],[F,D,E],[x,G,H]],F).
+move([[A,B,C],[D,x,E],[F,G,H]],[[A,B,C],[D,G,E],[F,x,H]],G).
+move([[A,B,C],[D,E,x],[F,G,H]],[[A,B,C],[D,E,H],[F,G,x]],H).
+
+
+
+	% ====================================
+	% solution(+StateA,+StateB,?Solution).
+	% ====================================
+	% the heart of the program !
+	% Calculates a Solution-Path from StateA to StateB by Depth-First-Search.
+
+solution(State,State,[]).	% trivial-case
+
+solution(StateA,EndState,[Move|Moves]) :-
+	solution(StateB,EndState,Moves),
+	(move(StateA,StateB,Move) ; move(StateB,StateA,Move)),
+	not(removed(Move,Moves)).
+
+
+	% =====================
+	% removed(+Elem,+List).
+	% =====================
+	% prevent a stone to be moved back immediatly
+
+removed(X,[X|_]).
